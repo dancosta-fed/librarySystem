@@ -7,6 +7,7 @@ public class Library {
     List<Book> books = new ArrayList<>();
     List<Author> authors = new ArrayList<>();
     List<BookLoan> loans = new ArrayList<>();
+    List<Client> clients = new ArrayList<>();
 
     public void addBook(Book book) {
         books.add(book);
@@ -22,6 +23,10 @@ public class Library {
 
     public List<Author> listAuthors() {
         return authors;
+    }
+
+    public List<Client> listClients() {
+        return clients;
     }
 
     public void updateAuthor(String newAuthorsName, UUID authorId) {

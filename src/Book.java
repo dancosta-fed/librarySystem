@@ -50,11 +50,11 @@ public class Book {
     @Override
     public String toString() {
         return "Book Details:\n" +
-                "id=" + id +
-                "title='" + title + '\'' +
-                "author=" + author +
-                "available=" + available +
-                "created at=" + createdAt +
-                "\nupdated at=" + updatedAt;
+                "id= " + id + '\n' +
+                "title= " + title + '\n' +
+                "author= " + author.getName() + '\n' +
+                "available= " + available + '\n' +
+                "created at= " + createdAt + '\n' +
+                "updated at= " + updatedAt;
     }
 }
