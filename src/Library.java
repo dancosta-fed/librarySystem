@@ -21,6 +21,10 @@ public class Library {
         authors.add(author);
     }
 
+    public void addClient(Client client) {
+        clients.add(client);
+    }
+
     public List<Author> listAuthors() {
         return authors;
     }

@@ -34,9 +34,6 @@ public class Client {
        return dateOfBirth;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
     @Override
     public String toString() {

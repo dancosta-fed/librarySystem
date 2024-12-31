@@ -1,8 +1,6 @@
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class LibrarySystem {
     public static void main(String[] args) throws ParseException {
@@ -14,17 +12,26 @@ public class LibrarySystem {
                         "1 - List books%n" +
                         "2 - List authors%n" +
                         "3 - List clients%n" +
-                        "4 - Other options%n" +
+                        "4 - List available books%n" +
+                        "5 - Other options%n" +
                         "0 - Exit%n%n" +
                         "Enter your choice: "
         );
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date danCostaDateOfBirth = sdf.parse("1988-02-04");
+        Date danCostaDateOfBirth = sdf.parse("1989-02-04");
 
         Author authorDan = new Author("Dan Costa", danCostaDateOfBirth);
-        Book book = new Book("My Book", authorDan);
+        library.addAuthor(authorDan);
+
+        Book book = new Book("My Rocket Seat Java Book", authorDan);
         library.addBook(book);
+
+        Book book2 = new Book("Fly With Java Book", authorDan);
+        library.addBook(book2);
+
+        Client clientDan = new Client("Dan Costa", "dan@rocket.com", danCostaDateOfBirth);
+        library.addClient(clientDan);
 
         System.out.println("Welcome to the Library System!");
 
@@ -37,7 +44,8 @@ public class LibrarySystem {
                 case 1 -> System.out.println(library.listBooks());
                 case 2 -> System.out.println(library.listAuthors());
                 case 3 -> System.out.println(library.listClients());
-                case 4 -> otherOptions(scanner, library);
+                case 4 -> System.out.println(library.listAvailableBooks());
+                case 5 -> otherOptions(scanner, library);
                 case 0 -> {
                     System.out.println("Goodbye!");
                     scanner.close();
@@ -69,9 +77,9 @@ public class LibrarySystem {
 
             switch (choice) {
                 case 1 -> addABookOption(library, scanner);
-                case 2 -> System.out.println("Add author functionality not implemented yet.");
-                case 3 -> System.out.println("Add client functionality not implemented yet.");
-                case 4 -> System.out.println("Loan a book functionality not implemented yet.");
+                case 2 -> addAuthor(library, scanner);
+                case 3 -> addClient(library, scanner);
+                case 4 -> bookLoan(library, scanner);
                 case 5 -> System.out.println("Return a book functionality not implemented yet.");
                 case 0 -> showOptionsMenu = false;
                 default -> System.out.println("Invalid choice. Please try again.%n");
@@ -127,6 +135,7 @@ public class LibrarySystem {
     }
 
     static void addAuthor(Library library, Scanner scanner) {
+        List<Author> authorsList = library.listAuthors();
         System.out.println("Enter the author's name:");
         String authorName = scanner.nextLine();
 
@@ -137,6 +146,13 @@ public class LibrarySystem {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date dob = sdf.parse(dateOfBirth);
 
+            for (Author author : authorsList) {
+                if (author.getName().equals(authorName) && author.getDateOfBirth().equals(dob)) {
+                    System.out.println("This author has been added already! Try again.");
+                    return;
+                }
+            }
+
             Author newAuthor = new Author(authorName, dob);
             library.addAuthor(newAuthor);
             System.out.println("Author added successfully!");
@@ -145,4 +161,92 @@ public class LibrarySystem {
         }
     }
 
+    static void addClient(Library library, Scanner scanner) {
+        List<Client> clientsList = library.listClients();
+        System.out.println("\nEnter the client's name:");
+        String clientName = scanner.nextLine();
+
+        System.out.println("Enter the client's date of birth (yyyy-MM-dd):");
+        String dateOfBirth = scanner.nextLine();
+
+        System.out.println("Enter the clients's email address:");
+        String emailAddress = scanner.nextLine();
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date dob = sdf.parse(dateOfBirth);
+
+            for (Client client : clientsList) {
+                if (client.getName().equals(clientName) && client.getDateOfBirth().equals(dob)) {
+                    System.out.println("This client has been added already! Try again.");
+                    return;
+                }
+
+                if(client.getEmail().equals(emailAddress)) {
+                    System.out.println("This email has already been used. Try a different one.");
+                }
+            }
+
+            Client newClient = new Client(clientName, emailAddress, dob);
+            library.addClient(newClient);
+            System.out.println("Client added successfully!");
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please try again.");
+        }
+    }
+
+    static void bookLoan(Library library, Scanner scanner) {
+        List<Book> bookList = library.listBooks();
+        List<Client> clientList = library.listClients();
+        System.out.println("Here are the available books:");
+
+        int bookCounter = 0;
+        for(Book book : bookList) {
+            if (book.isAvailable())
+                System.out.println(++bookCounter + "- " + book.getTitle() + " by " + book.getAuthor().getName());
+        }
+
+        UUID clientId = null;
+        System.out.println("\nWhat's the client's name?");
+        String clientsName = scanner.nextLine().toLowerCase();
+
+        for (Client client : clientList) {
+            if (client.getName().toLowerCase().equals(clientsName)) {
+                clientId = client.getId();
+                break;
+            }
+        }
+
+        if (clientId == null) {
+            System.out.println("Client not found! Add new client below:");
+            addClient(library, scanner);
+            return;
+        }
+
+
+        System.out.println("\nWhat book would " + clientsName +  " like to loan?");
+        String booksName = scanner.nextLine().toLowerCase();
+        boolean bookFound = false;
+
+        for (Book book : bookList) {
+            if (book.getTitle().toLowerCase().equals(booksName)) {
+                if (!book.isAvailable()) {
+                    System.out.println("The book is already loaned out.");
+                }
+
+                book.setAvailable(false);
+                book.setLoanToClient(clientId);
+                System.out.println("Book is successfully loaned to " + clientsName + "!");
+                bookFound = true;
+                break;
+            }
+        }
+
+        if (!bookFound) {
+            System.out.println("Book not found in the library.");
+        }
+
+
+
+    }
 }

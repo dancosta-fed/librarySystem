@@ -5,9 +5,10 @@ public class Book {
     private final UUID id;
     private final String title;
     private final Author author;
-    private boolean available;
     private final LocalDateTime createdAt;
+    private boolean available;
     private LocalDateTime updatedAt;
+    private UUID loanedBy;
 
     public Book(String title, Author author) {
         this.id = UUID.randomUUID();
@@ -16,6 +17,7 @@ public class Book {
         this.available = true;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.loanedBy = null;
     }
 
     public UUID getId() {
@@ -34,17 +36,13 @@ public class Book {
         return available;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
     public void setAvailable(boolean available) {
         this.available = available;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void setLoanToClient(UUID clientId) {
+        this.loanedBy = clientId;
     }
 
     @Override
