@@ -76,18 +76,18 @@ public class LibrarySystem {
             scanner.nextLine();
 
             switch (choice) {
-                case 1 -> addABookOption(library, scanner);
+                case 1 -> addABook(library, scanner);
                 case 2 -> addAuthor(library, scanner);
                 case 3 -> addClient(library, scanner);
                 case 4 -> bookLoan(library, scanner);
-                case 5 -> System.out.println("Return a book functionality not implemented yet.");
+                case 5 -> returnBook(library, scanner);
                 case 0 -> showOptionsMenu = false;
                 default -> System.out.println("Invalid choice. Please try again.%n");
             }
         }
     }
 
-    static void addABookOption(Library library, Scanner scanner) {
+    static void addABook(Library library, Scanner scanner) {
         List<Author> authorsList = library.listAuthors();
         List<Book> booksList = library.listBooks();
 
@@ -223,7 +223,6 @@ public class LibrarySystem {
             return;
         }
 
-
         System.out.println("\nWhat book would " + clientsName +  " like to loan?");
         String booksName = scanner.nextLine().toLowerCase();
         boolean bookFound = false;
@@ -246,7 +245,9 @@ public class LibrarySystem {
             System.out.println("Book not found in the library.");
         }
 
+    }
 
-
+    static void returnBook(Library library, Scanner scanner) {
+        System.out.println("Return a book functionality not implemented yet.");
     }
 }
