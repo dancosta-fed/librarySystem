@@ -3,12 +3,11 @@ import java.util.UUID;
 
 public class Book {
     private final UUID id;
-    private final String title;
+    private String title;
     private final Author author;
     private final LocalDateTime createdAt;
     private boolean available;
     private LocalDateTime updatedAt;
-    private UUID loanedBy;
 
     public Book(String title, Author author) {
         this.id = UUID.randomUUID();
@@ -17,15 +16,14 @@ public class Book {
         this.available = true;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.loanedBy = null;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Author getAuthor() {
@@ -39,10 +37,6 @@ public class Book {
     public void setAvailable(boolean available) {
         this.available = available;
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public void setLoanToClient(UUID clientId) {
-        this.loanedBy = clientId;
     }
 
     @Override

@@ -13,7 +13,9 @@ public class LibrarySystem {
                         "2 - List authors%n" +
                         "3 - List clients%n" +
                         "4 - List available books%n" +
-                        "5 - Other options%n" +
+                        "5 - List loaned books%n" +
+                        "6 - Get book by author%n" +
+                        "7 - Other options%n" +
                         "0 - Exit%n%n" +
                         "Enter your choice: "
         );
@@ -45,7 +47,9 @@ public class LibrarySystem {
                 case 2 -> System.out.println(library.listAuthors());
                 case 3 -> System.out.println(library.listClients());
                 case 4 -> System.out.println(library.listAvailableBooks());
-                case 5 -> otherOptions(scanner, library);
+                case 5 -> System.out.println(library.listBookLoans());
+                case 6 -> getBookByAuthor(library, scanner);
+                case 7 -> otherOptions(scanner, library);
                 case 0 -> {
                     System.out.println("Goodbye!");
                     scanner.close();
@@ -60,13 +64,15 @@ public class LibrarySystem {
         boolean showOptionsMenu = true;
         while (showOptionsMenu) {
             String optionsMenu = String.format(
-                            "%n" +
+                    "%n" +
                             "Choose an option:%n" +
                             "1 - Add book%n" +
                             "2 - Add author%n" +
                             "3 - Add client%n" +
                             "4 - Loan a book%n" +
                             "5 - Return a book%n" +
+                            "6 - Edit author's name%n" +
+                            "7 - Edit book's title%n" +
                             "0 - Go back to the main menu%n%n" +
                             "Enter your choice:"
             );
@@ -81,6 +87,8 @@ public class LibrarySystem {
                 case 3 -> addClient(library, scanner);
                 case 4 -> bookLoan(library, scanner);
                 case 5 -> returnBook(library, scanner);
+                case 6 -> editAuthor(library, scanner);
+                case 7 -> editBook(library, scanner);
                 case 0 -> showOptionsMenu = false;
                 default -> System.out.println("Invalid choice. Please try again.%n");
             }
@@ -182,7 +190,7 @@ public class LibrarySystem {
                     return;
                 }
 
-                if(client.getEmail().equals(emailAddress)) {
+                if (client.getEmail().equals(emailAddress)) {
                     System.out.println("This email has already been used. Try a different one.");
                 }
             }
@@ -201,41 +209,36 @@ public class LibrarySystem {
         System.out.println("Here are the available books:");
 
         int bookCounter = 0;
-        for(Book book : bookList) {
+        for (Book book : bookList) {
             if (book.isAvailable())
                 System.out.println(++bookCounter + "- " + book.getTitle() + " by " + book.getAuthor().getName());
         }
 
-        UUID clientId = null;
+        Client rentingClient = null;
         System.out.println("\nWhat's the client's name?");
         String clientsName = scanner.nextLine().toLowerCase();
 
         for (Client client : clientList) {
             if (client.getName().toLowerCase().equals(clientsName)) {
-                clientId = client.getId();
+                rentingClient = client;
                 break;
             }
         }
 
-        if (clientId == null) {
+        if (rentingClient == null) {
             System.out.println("Client not found! Add new client below:");
             addClient(library, scanner);
             return;
         }
 
-        System.out.println("\nWhat book would " + clientsName +  " like to loan?");
+        System.out.println("\nWhat book would " + clientsName + " like to loan?");
         String booksName = scanner.nextLine().toLowerCase();
         boolean bookFound = false;
 
         for (Book book : bookList) {
             if (book.getTitle().toLowerCase().equals(booksName)) {
-                if (!book.isAvailable()) {
-                    System.out.println("The book is already loaned out.");
-                }
-
-                book.setAvailable(false);
-                book.setLoanToClient(clientId);
-                System.out.println("Book is successfully loaned to " + clientsName + "!");
+                library.getABookLoan(book, rentingClient);
+                System.out.println(book.getTitle() + " has been loaned." + " to " + clientsName);
                 bookFound = true;
                 break;
             }
@@ -244,10 +247,127 @@ public class LibrarySystem {
         if (!bookFound) {
             System.out.println("Book not found in the library.");
         }
-
     }
 
     static void returnBook(Library library, Scanner scanner) {
-        System.out.println("Return a book functionality not implemented yet.");
+        List<BookLoan> bookLoan = library.listBookLoans();
+
+        System.out.println("What book would you like to return?");
+        String booksName = scanner.nextLine().toLowerCase();
+        boolean bookFound = false;
+        for (BookLoan book : bookLoan) {
+            if (book.getBook().getTitle().toLowerCase().equals(booksName)) {
+                if (book.getBook().isAvailable()) {
+                    System.out.println(book.getBook().getTitle() + " was already returned.");
+                    return;
+                }
+
+                library.returnABook(book);
+                System.out.println(book.getBook().getTitle() + " is returned and now available to be loaned again.");
+                bookFound = true;
+                break;
+            }
+        }
+
+        if (!bookFound) {
+            System.out.println("Book not found in the library.");
+        }
+    }
+
+    static void getBookByAuthor(Library library, Scanner scanner) {
+        List<Author> authorsList = library.listAuthors();
+        System.out.println("What author are you interested in?");
+        String booksAuthor = scanner.nextLine();
+
+        for (Author author : authorsList) {
+            if (!author.getName().equals(booksAuthor)) {
+                System.out.println("Author not found!");
+                return;
+            }
+            System.out.println("These are the books written by " + author.getName());
+            System.out.println(library.getBooksByAuthor(author));
+            break;
+        }
+    }
+
+    static void editAuthor(Library library, Scanner scanner) {
+        List<Author> authorsList = library.listAuthors();
+        System.out.println("Enter the author's name:");
+        String authorName = scanner.nextLine();
+
+        System.out.println("Enter the author's date of birth (yyyy-MM-dd):");
+        String dateOfBirth = scanner.nextLine();
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date dob = sdf.parse(dateOfBirth);
+
+            for (Author author : authorsList) {
+                if (!author.getName().equals(authorName) || !author.getDateOfBirth().equals(dob)) {
+                    System.out.println("Author not found!");
+                    return;
+                }
+
+                System.out.println("Would you like to edit this author's name? Y/N");
+                String response = scanner.nextLine();
+
+                if (response.equalsIgnoreCase("n")) {
+                    System.out.println("Ok...");
+                    return;
+                }
+
+                if (response.equalsIgnoreCase("y")) {
+                    System.out.println("What's the updated name?");
+                    String newName = scanner.nextLine();
+
+                    author.setName(newName);
+                    System.out.println("Author updated successfully!");
+                    return;
+                }
+
+                System.out.println("That's not an available response.");
+            }
+
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please try again.");
+        }
+    }
+
+    static void editBook(Library library, Scanner scanner) {
+        List<Book> booksList = library.listBooks();
+        System.out.println("Here are all the books:");
+
+        int bookCounter = 0;
+        for (Book book : booksList) {
+            System.out.println(++bookCounter + "- " + book.getTitle() + " by " + book.getAuthor().getName());
+        }
+
+        System.out.println("Enter the book's name:");
+        String bookName = scanner.nextLine();
+
+        for (Book book : booksList) {
+            if (book.getTitle().equals(bookName)) {
+                System.out.println("Would you like to edit this book's title? Y/N");
+                String response = scanner.nextLine();
+
+                if (response.equalsIgnoreCase("n")) {
+                    System.out.println("Ok...");
+                    return;
+                }
+
+                if (response.equalsIgnoreCase("y")) {
+                    System.out.println("What's the updated title?");
+                    String newName = scanner.nextLine();
+
+                    book.setTitle(newName);
+                    System.out.println("Book updated successfully!");
+                    return;
+                }
+
+                System.out.println("That's not an available response.");
+                return;
+            }
+        }
+
     }
 }

@@ -1,7 +1,6 @@
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Library {
     List<Book> books = new ArrayList<>();
@@ -31,15 +30,6 @@ public class Library {
 
     public List<Client> listClients() {
         return clients;
-    }
-
-    public void updateAuthor(String newAuthorsName, UUID authorId) {
-        for (Author author : authors) {
-            if (author.getId().equals(authorId)) {
-                author.setName(newAuthorsName);
-            }
-        }
-        return;
     }
 
     public void getABookLoan(Book book, Client client){

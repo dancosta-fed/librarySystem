@@ -15,20 +15,12 @@ public class Author {
         this.createdAt = LocalDateTime.now();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
     }
 
     public Date getDateOfBirth() {
         return dateOfBirth;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
     }
 
     public void setName(String name) {

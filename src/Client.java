@@ -18,10 +18,6 @@ public class Client {
         this.createdAt = LocalDateTime.now();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
     public String getName() {
        return name;
     }
@@ -33,7 +29,6 @@ public class Client {
     public Date getDateOfBirth() {
        return dateOfBirth;
     }
-
 
     @Override
     public String toString() {
